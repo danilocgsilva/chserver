@@ -28,28 +28,49 @@ chserver_questionindex () {
     if [ -z $1 ]; then
         echo You must give a number of the question index.
         exit
-    exit
+    fi
 
     case $1 in
-        1)chserver_askfile "Provides the full sql script: " full_path_sql_script;;
-        2)chserver_asknonempty "Provides the old domain: " old_domain;;
-        3)chserver_asknonempty "Provides the new domain: " new_domain;;
-        4)chserver_asknonempty "Provides the old server path: " old_server_path;;
-        5)chserver_asknonempty "Provides the new server path: " new_server_path;;
+        1) chserver_askfile "Provides the full sql script: " full_path_sql_script;;
+        2) chserver_asknonempty "Provides the old domain: " old_domain;;
+        3) chserver_asknonempty "Provides the new domain: " new_domain;;
+        4) chserver_asknonempty "Provides the old server path: " old_server_path;;
+        5) chserver_asknonempty "Provides the new server path: " new_server_path;;
     esac
+}
+
+## Count occurrences in the given file, so the user can be hinted if errors occurs
+chserver_countoccurrences () {
+    if [ -z $1 ]; then
+        echo Must provide an valid file as argument
+        exit
+    fi
+
+    count_occurrences=$(grep -iR $1 | wc -l)
+
+    echo There are $count_occurrences in the give file.
 }
 
 ## Main function
 chserver () {
-    chserver_askfile "Provides the full sql script: " full_path_sql_script
+    # Asks for full sql script path
+    chserver_questionindex 1 
 
-    chserver_asknonempty "Provides the old domain: " old_domain
+    # Asks for old domain
+    chserver_questionindex 2
 
-    chserver_asknonempty "Provides the new domain: " new_domain
+    chserver_countoccurrences $old_domain
 
-    chserver_asknonempty "Provides the old server path: " old_server_path
+    # Asks for new domain
+    chserver_questionindex 3
 
-    chserver_asknonempty "Provides the new server path: " new_server_path
+    # Asks for old server path
+    chserver_questionindex 4
+
+    chserver_countoccurrences $old_server_path
+
+    # Asks for a new server path
+    chserver_questionindex 5
     
     echo Full sql script: $full_path_sql_script
     echo Old server: $old_domain
