@@ -23,6 +23,22 @@ chserver_askfile () {
     fi
 }
 
+## Do the question. Because question can be asked several times, in case of user error, it is easiest to asks questions by index
+chserver_questionindex () {
+    if [ -z $1 ]; then
+        echo You must give a number of the question index.
+        exit
+    exit
+
+    case $1 in
+        1)chserver_askfile "Provides the full sql script: " full_path_sql_script;;
+        2)chserver_asknonempty "Provides the old domain: " old_domain;;
+        3)chserver_asknonempty "Provides the new domain: " new_domain;;
+        4)chserver_asknonempty "Provides the old server path: " old_server_path;;
+        5)chserver_asknonempty "Provides the new server path: " new_server_path;;
+    esac
+}
+
 ## Main function
 chserver () {
     chserver_askfile "Provides the full sql script: " full_path_sql_script
@@ -31,9 +47,9 @@ chserver () {
 
     chserver_asknonempty "Provides the new domain: " new_domain
 
-    chserver_asknonempty "Provides the new server: " old_server_path
+    chserver_asknonempty "Provides the old server path: " old_server_path
 
-    chserver_asknonempty "Provides the new server: " new_server_path
+    chserver_asknonempty "Provides the new server path: " new_server_path
     
     echo Full sql script: $full_path_sql_script
     echo Old server: $old_domain
