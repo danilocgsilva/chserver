@@ -36,19 +36,41 @@ chserver_questionindex () {
         3) chserver_asknonempty "Provides the new domain: " new_domain;;
         4) chserver_asknonempty "Provides the old server path: " old_server_path;;
         5) chserver_asknonempty "Provides the new server path: " new_server_path;;
+        *) return 2;;
     esac
 }
 
-## Count occurrences in the given file, so the user can be hinted if errors occurs
-chserver_countoccurrences () {
-    if [ -z $1 ]; then
-        echo Must provide an valid file as argument
-        exit
+## Make question when zero was the result of occurrences for domain replacement
+chserver_domainzerodecisions () {
+    echo Answer 1: That\'s right. I wont do any domain replacement.
+    echo Answer 2: I mistyped. Ask me again the old domain.
+    echo Answer 0: Cancel.
+    read -p "Provides the right number: " number_of_resp
+    case $number_of_resp in
+        1) return 0 ;;
+        2) chserver_replacementsdomainasks;;
+        0) exit ;;
+        *) sleep 2; echo Please, provides just a single number to answer. ;chserver_domainzerodecisions;;
+    esac
+}
+
+## Decides the order of questions to the domain replacement operation
+chserver_replacementsdomainasks () {
+    # Asks for old domain
+    chserver_questionindex 2
+
+    old_domain_occurrences=$(grep -iR "$old_domain" "$full_path_sql_script" | wc -l)
+    if [ $old_domain_occurrences -eq 0 ]; then
+        sleep 2
+        echo -- WARNING! No occurrences found for $old_domain. What is going on?
+        chserver_domainzerodecisions
+        return 0
     fi
 
-    count_occurrences=$(grep -iR $1 | wc -l)
+    echo There are $old_domain_occurrences occurrences for $old_domain
 
-    echo There are $count_occurrences in the give file.
+    # Asks for new domain
+    chserver_questionindex 3
 }
 
 ## Main function
@@ -56,13 +78,7 @@ chserver () {
     # Asks for full sql script path
     chserver_questionindex 1 
 
-    # Asks for old domain
-    chserver_questionindex 2
-
-    chserver_countoccurrences $old_domain
-
-    # Asks for new domain
-    chserver_questionindex 3
+    chserver_replacementsdomainasks
 
     # Asks for old server path
     chserver_questionindex 4
