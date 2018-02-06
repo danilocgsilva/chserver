@@ -158,11 +158,11 @@ chserver_finalstatements () {
 chserver_proceedsreplacements () {
 
     if [ ! -z $old_domain ]; then
-        sed -i s@$old_domain@$new_domain@g $full_path_sql_script
+        sed -i .bkp s@$old_domain@$new_domain@g $full_path_sql_script
     fi
 
     if [ ! -z $old_server_path ]; then
-        sed -i s@$old_server_path@$new_server_path@g $full_path_sql_script
+        sed -i .bkp s@$old_server_path@$new_server_path@g $full_path_sql_script
     fi
 
     echo Done!
